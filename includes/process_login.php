@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// For demonstration purposes - replace with database authentication later
 $demo_username = "admin";
 $demo_password = "password123";
 
@@ -9,14 +8,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // Simple validation
     if (empty($username) || empty($password)) {
         $_SESSION['error'] = "Please fill in all fields";
         header('Location: ../login.php');
         exit;
     }
 
-    // Demo authentication - replace with database authentication later
     if ($username === $demo_username && $password === $demo_password) {
         $_SESSION['logged_in'] = true;
         $_SESSION['username'] = $username;
