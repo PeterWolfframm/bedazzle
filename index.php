@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Check if user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     header('Location: login.php');
     exit;
@@ -21,6 +20,7 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         <div class="container">
             <ul>
                 <li><a href="index.php">Home</a></li>
+                <li><a href="profile.php">Profile</a></li>
                 <li><a href="logout.php" class="btn">Logout</a></li>
             </ul>
         </div>
