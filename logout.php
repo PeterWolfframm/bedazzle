@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once "dbaccess.php";
 
 // Unset all session variables
 $_SESSION = array();
