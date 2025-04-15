@@ -1,0 +1,262 @@
+/* Coquette-style CSS for Bedazzle */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Quicksand:wght@300;400;500&display=swap');
+
+:root {
+    --primary-color: #ff69b4;
+    --secondary-color: #f8e1e7;
+    --accent-color: #ffb6c1;
+    --text-color: #4a4a4a;
+    --light-color: #fff9fb;
+    
+    /* Bulma specific variables */
+    --bulma-primary: var(--primary-color);
+    --bulma-primary-light: var(--secondary-color);
+    --bulma-primary-dark: var(--accent-color);
+}
+
+/* Glitter Animation */
+@keyframes glitter {
+    0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0)); }
+    25% { opacity: 0.8; transform: scale(1.1); filter: drop-shadow(0 0 3px rgba(255, 223, 248, 0.9)); }
+    50% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 7px rgba(255, 182, 193, 0.8)); }
+    75% { opacity: 0.9; transform: scale(1.05); filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.7)); }
+}
+
+.sparkle {
+    display: inline-block;
+    animation: glitter 2s infinite;
+    transform-origin: center;
+}
+
+/* Multiple sparkle variants for variety */
+.sparkle-fast {
+    display: inline-block;
+    animation: glitter 1.5s infinite;
+}
+
+.sparkle-slow {
+    display: inline-block;
+    animation: glitter 2.5s infinite;
+}
+
+body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: var(--light-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-image: 
+        radial-gradient(circle at 100% 100%, var(--secondary-color) 0, transparent 20%),
+        radial-gradient(circle at 0% 0%, var(--secondary-color) 0, transparent 20%);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--accent-color);
+}
+
+.welcome-section {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(255, 182, 193, 0.2);
+    margin: 2rem auto;
+    max-width: 800px;
+    position: relative;
+}
+
+.welcome-section::before,
+.welcome-section::after {
+    content: '❀';
+    font-size: 2rem;
+    color: var(--accent-color);
+    position: absolute;
+    opacity: 0.6;
+    animation: glitter 2s infinite;
+}
+
+.welcome-section::before {
+    top: 1rem;
+    left: 1rem;
+}
+
+.welcome-section::after {
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.welcome-title {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-menu {
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+    color: var(--accent-color);
+}
+
+.btn {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 25px;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
+}
+
+form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin: 0.5rem 0;
+    border: 2px solid var(--secondary-color);
+    border-radius: 8px;
+    font-family: 'Quicksand', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.error-message {
+    color: #ff4757;
+    background-color: #ffe0e3;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.success-message {
+    color: #2ed573;
+    background-color: #e0ffe7;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+/* Bulma Overrides */
+.navbar.is-primary {
+    background: linear-gradient(135deg, var(--accent-color), var(--primary-color)) !important;
+}
+
+.navbar.is-primary .navbar-brand > a.navbar-item,
+.navbar.is-primary .navbar-brand > a.navbar-item:hover,
+.navbar.is-primary .navbar-end > a.navbar-item,
+.navbar.is-primary .navbar-end > a.navbar-item:hover {
+    color: white !important;
+}
+
+.hero.is-primary {
+    background: linear-gradient(135deg, var(--accent-color), var(--primary-color)) !important;
+}
+
+.button.is-primary {
+    background-color: var(--bulma-primary) !important;
+    border-color: transparent !important;
+}
+
+.button.is-primary:hover {
+    background-color: var(--bulma-primary-dark) !important;
+}
+
+.button.is-light {
+    background-color: white !important;
+    color: var(--accent-color) !important;
+}
+
+.button.is-light:hover {
+    background-color: #f5f5f5 !important;
+    color: var(--primary-color) !important;
+}
+
+/* More comprehensive Bulma overrides */
+.is-primary {
+    background-color: var(--bulma-primary) !important;
+    color: white !important;
+}
+
+.has-text-primary {
+    color: var(--bulma-primary) !important;
+}
+
+/* Additional Bulma elements that need overriding */
+.notification.is-primary {
+    background-color: var(--bulma-primary) !important;
+    color: white !important;
+}
+
+.progress.is-primary::-webkit-progress-value {
+    background-color: var(--bulma-primary) !important;
+}
+
+.progress.is-primary::-moz-progress-bar {
+    background-color: var(--bulma-primary) !important;
+}
+
+.progress.is-primary::-ms-fill {
+    background-color: var(--bulma-primary) !important;
+}
+
+.input.is-primary, .textarea.is-primary {
+    border-color: var(--bulma-primary) !important;
+}
+
+.input.is-primary:focus, .textarea.is-primary:focus {
+    border-color: var(--bulma-primary) !important;
+    box-shadow: 0 0 0 0.125em rgba(255, 105, 180, 0.25) !important;
+} 

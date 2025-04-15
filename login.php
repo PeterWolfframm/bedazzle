@@ -17,6 +17,8 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
     <link rel="stylesheet" href="includes/style.css">
 </head>
 <body>
+    <?php include 'includes/navbar.php'; ?>
+    
     <div class="container">
         <div class="welcome-section">
             <h1 class="welcome-title">Bedazzle</h1>
