@@ -1,5 +1,5 @@
 <?php
-require_once 'Products.php';
+require_once __DIR__ . '/Products.php';
 
 $productsManager = new Products();
 $products = $productsManager->getAllProducts();
