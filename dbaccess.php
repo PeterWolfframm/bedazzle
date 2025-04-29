@@ -1,65 +1,28 @@
 <?php
-session_start();
+/**
+ * Database connection configuration
+ * This file should be included at the beginning of index.php
+ */
 
-$con = mysqli_connect('localhost', 'root', '', 'bedazzle');
-
-if ($con->connect_error) {
-    $_SESSION['error'] = "Fehler bei der Verbindung zur Datenbank";
-    die("Verbindung fehlgeschlagen: " . $con->connect_error);
+// Start the session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-$userCheck = "SELECT * FROM users WHERE role = 'admin'";
-$userResult = $con->query($userCheck);
+// Database connection parameters
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', 'root');
+define('DB_NAME', 'bedazzle');
 
-if ($userResult->num_rows == 0) {
-    $salutation = 'Frau';
-    $username = 'admin123';
-    $password_plain = 'admin123';
-    $email = 'admin@shop.com';
-    $firstname = 'Admin';
-    $lastname = 'User';
-    $address = 'Musterstraße 1';
-    $postalcode = '12345';
-    $city = 'Wien';
-    $payment_method = 'PayPal';
-    $role = 'admin';
+// Create connection
+$con = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
-    $hashed_password = password_hash($password_plain, PASSWORD_DEFAULT);
-
-    $sql_insert = "INSERT INTO users (salutation, firstname, lastname, address, postalcode, city, email, username, password, payment_method, role)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-    $stmt = $con->prepare($sql_insert);
-
-    if ($stmt) {
-        $stmt->bind_param(
-            "sssssssssss",
-            $salutation,
-            $firstname,
-            $lastname,
-            $address,
-            $postalcode,
-            $city,
-            $email,
-            $username,
-            $hashed_password,
-            $payment_method,
-            $role
-        );
-
-        if ($stmt->execute()) {
-            echo $_SESSION['success'] = "Admin-Benutzer erfolgreich erstellt.";
-        } else {
-            $_SESSION['error'] = "Fehler beim Einfügen des Admins: " . $stmt->error;
-        }
-
-        $stmt->close();
-    } else {
-        $_SESSION['error'] = "Fehler beim Vorbereiten des Statements: " . $con->error;
-    }
-} else {
-    echo "Admin-Benutzer ist bereits vorhanden.";
+// Check connection
+if (!$con) {
+    $_SESSION['error'] = "Fehler bei der Verbindung zur Datenbank: " . mysqli_connect_error();
+    die("Verbindung fehlgeschlagen: " . mysqli_connect_error());
 }
 
-$con->close();
-?>
+// Set charset to UTF-8
+$con->set_charset("utf8mb4"); 
