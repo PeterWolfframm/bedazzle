@@ -6,38 +6,47 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     exit;
 }
 
-// Beispieldaten
-$cart_items = [
-    [
-        'id' => 1,
-        'name' => 'Pearl Hair Bow',
-        'price' => 19.99,
-        'quantity' => 2,
-        'picture' => 'images/pearl-bow.jpg'
-    ],
-    [
-        'id' => 3,
-        'name' => 'Lace Ribbon Choker',
-        'price' => 15.99,
-        'quantity' => 1,
-        'picture' => 'images/lace-choker.jpg'
-    ],
-    [
-        'id' => 6,
-        'name' => 'Glitter Heart Purse',
-        'price' => 29.99,
-        'quantity' => 1,
-        'picture' => 'images/heart-purse.jpg'
-    ]
-];
+require_once 'includes/Cart.php';
+$cart = new Cart();
 
-// Calculate totals
-$subtotal = 0;
-foreach ($cart_items as $item) {
-    $subtotal += $item['price'] * $item['quantity'];
+// Handle AJAX requests for cart updates
+if (isset($_POST['action']) && isset($_POST['product_id'])) {
+    header('Content-Type: application/json');
+    $productId = (int)$_POST['product_id'];
+    
+    switch ($_POST['action']) {
+        case 'increase':
+            foreach ($cart->getItems() as $item) {
+                if ($item['id'] == $productId) {
+                    $cart->updateQuantity($productId, $item['quantity'] + 1);
+                    break;
+                }
+            }
+            break;
+            
+        case 'decrease':
+            foreach ($cart->getItems() as $item) {
+                if ($item['id'] == $productId) {
+                    $cart->updateQuantity($productId, $item['quantity'] - 1);
+                    break;
+                }
+            }
+            break;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'subtotal' => number_format($cart->getSubtotal(), 2),
+        'shipping' => number_format($cart->getShipping(), 2),
+        'total' => number_format($cart->getTotal(), 2)
+    ]);
+    exit;
 }
-$shipping = 4.99;
-$total = $subtotal + $shipping;
+
+$cart_items = $cart->getItems();
+$subtotal = $cart->getSubtotal();
+$shipping = $cart->getShipping();
+$total = $cart->getTotal();
 ?>
 
 <!DOCTYPE html>
@@ -238,14 +247,14 @@ $total = $subtotal + $shipping;
         
         <div class="cart-container">
             <div class="cart-items">
-                <?php if (empty($cart_items)): ?>
+                <?php if ($cart->isEmpty()): ?>
                     <div class="empty-cart">
                         <p>Your cart is empty</p>
                         <a href="index.php" class="continue-shopping">Continue Shopping ✨</a>
                     </div>
                 <?php else: ?>
                     <?php foreach ($cart_items as $item): ?>
-                        <div class="cart-item">
+                        <div class="cart-item" data-product-id="<?php echo $item['id']; ?>">
                             <div class="item-image">
                                 <img src="<?php echo htmlspecialchars($item['picture']); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
                             </div>
@@ -254,9 +263,9 @@ $total = $subtotal + $shipping;
                                 <p class="item-price">$<?php echo number_format($item['price'], 2); ?></p>
                             </div>
                             <div class="item-quantity">
-                                <button class="quantity-btn" onclick="updateQuantity(<?php echo $item['id']; ?>, 'decrease')">-</button>
-                                <span><?php echo $item['quantity']; ?></span>
-                                <button class="quantity-btn" onclick="updateQuantity(<?php echo $item['id']; ?>, 'increase')">+</button>
+                                <button class="quantity-btn decrease-btn" onclick="updateQuantity(<?php echo $item['id']; ?>, 'decrease')">-</button>
+                                <span class="quantity-value"><?php echo $item['quantity']; ?></span>
+                                <button class="quantity-btn increase-btn" onclick="updateQuantity(<?php echo $item['id']; ?>, 'increase')">+</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -267,25 +276,63 @@ $total = $subtotal + $shipping;
                 <h2 class="summary-title">Order Summary</h2>
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>$<?php echo number_format($subtotal, 2); ?></span>
+                    <span class="subtotal">$<?php echo number_format($subtotal, 2); ?></span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
-                    <span>$<?php echo number_format($shipping, 2); ?></span>
+                    <span class="shipping">$<?php echo number_format($shipping, 2); ?></span>
                 </div>
                 <div class="summary-row summary-total">
                     <span>Total</span>
-                    <span>$<?php echo number_format($total, 2); ?></span>
+                    <span class="total">$<?php echo number_format($total, 2); ?></span>
                 </div>
-                <a href="#" class="checkout-btn">Proceed to Checkout 🎀</a>
+                <a href="checkout.php" class="checkout-btn">Proceed to Checkout 🎀</a>
             </div>
         </div>
     </div>
 
     <script>
     function updateQuantity(productId, action) {
-        // TODO: Implement quantity update functionality
-        alert('Quantity update will be implemented soon!');
+        fetch('cart.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=${action}&product_id=${productId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const cartItem = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
+                if (cartItem) {
+                    const quantitySpan = cartItem.querySelector('.quantity-value');
+                    const currentQuantity = parseInt(quantitySpan.textContent);
+                    
+                    if (action === 'increase') {
+                        quantitySpan.textContent = currentQuantity + 1;
+                    } else if (action === 'decrease') {
+                        const newQuantity = currentQuantity - 1;
+                        if (newQuantity <= 0) {
+                            cartItem.remove();
+                            if (document.querySelectorAll('.cart-item').length === 0) {
+                                location.reload(); // Reload to show empty cart message
+                            }
+                        } else {
+                            quantitySpan.textContent = newQuantity;
+                        }
+                    }
+                    
+                    // Update summary
+                    document.querySelector('.subtotal').textContent = `$${data.subtotal}`;
+                    document.querySelector('.shipping').textContent = `$${data.shipping}`;
+                    document.querySelector('.total').textContent = `$${data.total}`;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the cart. Please try again.');
+        });
     }
     </script>
 </body>
