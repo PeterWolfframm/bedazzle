@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'User.php';
 
 $demo_username = "admin";
 $demo_password = "password123";
@@ -14,16 +15,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    if ($username === $demo_username && $password === $demo_password) {
+    $user = new User();
+    $result = $user->login($username, $password);
+
+    if ($result['success']) {
         $_SESSION['logged_in'] = true;
         $_SESSION['username'] = $username;
         header('Location: ../index.php');
-        exit;
     } else {
-        $_SESSION['error'] = "Invalid username or password";
+        $_SESSION['error'] = $result['message'];
         header('Location: ../login.php');
-        exit;
     }
+    exit;
 } else {
     header('Location: ../login.php');
     exit;

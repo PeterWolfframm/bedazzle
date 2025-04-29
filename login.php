@@ -1,20 +1,43 @@
 <?php
 session_start();
-require_once "dbaccess.php";
+require_once 'includes/User.php';
 
-// If already logged in, redirect to index
+$error = '';
+$success = '';
+
+// Check if user is already logged in
 if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
     header('Location: index.php');
-    exit;
+    exit();
+}
+
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    if (empty($username) || empty($password)) {
+        $error = 'Bitte füllen Sie alle Felder aus.';
+    } else {
+        $user = new User();
+        $result = $user->login($username, $password);
+
+        if ($result['success']) {
+            header('Location: index.php');
+            exit();
+        } else {
+            $error = $result['message'];
+        }
+    }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to Bedazzle ✨</title>
+    <title>Login - Bedazzle</title>
     <link rel="stylesheet" href="includes/style.css">
 </head>
 <body>
@@ -25,24 +48,27 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             <h1 class="welcome-title">Bedazzle</h1>
             <p>Welcome back, lovely! <span class="sparkle-fast">✨</span></p>
             
-            <?php
-            if (isset($_SESSION['error'])) {
-                echo '<div class="error-message">' . htmlspecialchars($_SESSION['error']) . '</div>';
-                unset($_SESSION['error']);
-            }
-            ?>
+            <?php if ($error): ?>
+                <div class="error"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div class="success"><?php echo htmlspecialchars($success); ?></div>
+            <?php endif; ?>
             
-            <form action="includes/process_login.php" method="POST">
+            <form method="POST" action="login.php" class="login-form">
                 <div class="form-group">
-                    <label for="username">Username</label>
+                    <label for="username">Benutzername:</label>
                     <input type="text" id="username" name="username" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
+                    <label for="password">Passwort:</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn">Login</button>
+                <button type="submit" class="btn">Anmelden</button>
             </form>
+            
+            <p class="mt-4">Noch kein Konto? <a href="register.php">Jetzt registrieren</a></p>
         </div>
     </div>
 </body>
